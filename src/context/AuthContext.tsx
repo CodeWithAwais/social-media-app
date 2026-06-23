@@ -7,7 +7,6 @@
 
 import { useState, type ReactNode } from "react";
 import { AuthContext, type User } from '../types/index'
-import Sukuna from '../assets/sukuna.jpg'
 
 function AuthProvider({children} : {children: ReactNode}){
     
@@ -17,7 +16,7 @@ function AuthProvider({children} : {children: ReactNode}){
         const fakeUser: User = {
         id: 'U-' + Math.random().toString(36).slice(2, 10),
         username: username,
-        avatar: Sukuna,
+        avatar: `https://i.pravatar.cc/150?u=${username}`,
         bio: 'Just exploring the App!',
         followers: Math.floor(Math.random() * 1000),
         isFollowing: false
