@@ -9,7 +9,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { FeedContext, type Category, type Post, type NewPostForm } from '../types/index';
-import Sukuna from '../assets/sukuna.jpg'
+import Sukuna from '../assets/Sukuna.jpg'
 import useAuth from '../hooks/useAuth'
 
 const fakePosts : Post[] = [{
