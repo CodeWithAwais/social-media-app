@@ -1,0 +1,714 @@
+index.ts
+
+import { createContext } from 'react'
+
+// User — id, username, avatar, bio, followers, isFollowing
+export interface User {
+    id: string
+    username: string,
+    avatar: string,
+    bio: string,
+    followers: number,
+    isFollowing: boolean
+}
+
+// Post — id, userId, username, caption, imageUrl,
+//         likes, isLiked, category, createdAt
+export interface Post{
+    id: string,
+    userId: string,
+    username: string,
+    avatar: string,
+    imageUrl: string,
+    caption: string,
+    isLiked: boolean,
+    likes: number,
+    category: Category,
+    createdAt: string
+}
+
+// Category — union type: "all" | "tech" | "lifestyle" | "travel" | "food"
+export type Category = "all" | "tech" | "lifestyle" | "travel" | "food";
+
+// NewPostForm — caption, imageUrl, category (no id, userId, likes etc)
+export interface NewPostForm {
+    caption: string,
+    imageUrl: string,
+    category: Category
+}
+
+// AuthContextType — user, login, logout, isLoggedIn
+export interface AuthContextType {
+    user: User | null,
+    login: (username: string) => void,
+    logout: () => void,
+    isLoggedIn: boolean,
+    toggleFollow: (username: string) => void
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
+
+// FeedContextType — posts, addPost, toggleLike, filterCategory,
+//                   setFilterCategory
+export interface FeedContextType {
+    posts: Post[],
+    addPost: (form: NewPostForm) => void,
+    toggleLike: (postId: string) => void,
+    filterCategory: Category,
+    setFilterCategory: (category: Category) => void
+}
+
+export const FeedContext = createContext<FeedContextType | null>(null);
+
+
+
+AuthContext.tsx
+
+// Your job — build AuthContext that:
+// - holds user: User | null
+// - has login(username: string) function
+//   → sets user with fake data { id, username, avatar, bio, followers }
+// - has logout() function
+// - has isLoggedIn: boolean derived from user !== null
+
+import { useState, type ReactNode } from "react";
+import { AuthContext, type User } from '../types/index'
+import Sukuna from '../assets/sukuna.jpg'
+
+function AuthProvider({children} : {children: ReactNode}){
+    
+    const [user, setUser] = useState<User | null>(null);
+    const isLoggedIn = user != null;
+    function login(username: string){
+        const fakeUser: User = {
+        id: 'U-' + Math.random().toString(36).slice(2, 10),
+        username: username,
+        avatar: Sukuna,
+        bio: 'Just exploring the App!',
+        followers: Math.floor(Math.random() * 1000),
+        isFollowing: false
+        }
+        setUser(fakeUser)
+        
+    }
+    function logout(){
+        window.location.replace('/login');
+        setTimeout(() => {
+            setUser(null);
+        }, 0);
+    }
+    function toggleFollow(username: string){
+        setUser(prev => {
+            if(username !== prev?.username)
+                return prev;
+            const newIsFollower = !prev.isFollowing;
+            return {
+                ...prev,
+                isFollowing: newIsFollower,
+                followers: newIsFollower ? prev.followers + 1 : prev.followers - 1
+            }
+        })
+    }
+    return(<>
+    <AuthContext.Provider value={
+        {user, login, logout, isLoggedIn, toggleFollow}
+    }>
+        {children}
+    </AuthContext.Provider>
+    </>)
+}
+
+export default AuthProvider;
+
+
+
+FeedContext.tsx
+
+// Your job — build FeedContext that:
+// - holds posts: Post[] — start with 3 fake posts
+// - has addPost(form: NewPostForm) function
+//   → creates new post with random id, current user info
+// - has toggleLike(postId: string) function
+//   → flips isLiked, increments/decrements likes count
+// - has filterCategory: Category state
+// - has setFilterCategory function
+
+import { useState, type ReactNode } from 'react';
+import { FeedContext, type Category, type Post, type NewPostForm } from '../types/index';
+import Sukuna from '../assets/sukuna.jpg'
+import useAuth from '../hooks/useAuth'
+
+const fakePosts : Post[] = [{
+        id: 'P-001',
+        userId: 'U-001',
+        username: 'awais',
+        avatar: Sukuna,
+        caption: 'my first post',
+        imageUrl: 'https://picsum.photos/200/300',
+        likes: 0,
+        isLiked: false,
+        category: "tech",
+        createdAt: Date.now().toString()
+    },{
+        id: 'P-002',
+        userId: 'U-001',
+        username: 'awais',
+        avatar: Sukuna,
+        caption: 'my 2nd post',
+        imageUrl: 'https://picsum.photos/200/300',
+        likes: 0,
+        isLiked: false,
+        category: "food",
+        createdAt: Date.now().toString()
+    },{
+        id: 'P-003',
+        userId: 'U-001',
+        username: 'awais',
+        avatar: Sukuna,
+        caption: 'my 3rd post',
+        imageUrl: 'https://picsum.photos/200/300',
+        likes: 0,
+        isLiked: false,
+        category: 'travel',
+        createdAt: Date.now().toString()
+    }]
+
+function FeedProvider({children}: {children: ReactNode}){
+    const { user } = useAuth();
+    const [posts, setPosts] = useState<Post[]>(fakePosts);
+    const [filterCategory, setFilterCategory] = useState<Category>("all");  
+    function addPost(form: NewPostForm){
+        if(!user) return;
+        setPosts(prev => ([...prev, {
+            id: 'P-' + Math.random().toString(36).slice(2, 7),
+            userId: user.id,
+            username: user.username,
+            avatar: user.avatar,
+            caption: form.caption,
+            imageUrl: form.imageUrl,
+            likes: 0,
+            isLiked: false,
+            category: form.category,
+            createdAt: Date.now().toString()
+        }]))
+    }
+    function toggleLike(postId: string){
+        setPosts(prev => prev.map(post => {
+            if(post.id !== postId)
+                return post;
+            const newIsLiked = !post.isLiked;
+            return{
+                ...post, isLiked: newIsLiked,
+                likes: newIsLiked ? post.likes + 1 : post.likes - 1 
+            }
+        }))
+    }
+    return(<>
+    <FeedContext.Provider value={
+        {posts, addPost, toggleLike, filterCategory, setFilterCategory}
+    } >
+        {children}
+    </FeedContext.Provider>
+    </>)
+}
+
+export default FeedProvider;
+
+
+
+useAuth.ts
+
+import { useContext } from "react";
+import { AuthContext } from '../types/index'
+
+function useAuth() {
+    const auth = useContext(AuthContext);
+    if(!auth){
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return auth;
+}
+
+export default useAuth;
+
+
+
+useFeed.ts
+
+import { useContext } from "react";
+import { FeedContext } from '../types/index'
+
+function useFeed() {
+    const feed = useContext(FeedContext);
+    if(!feed){
+        throw new Error("useFeed must be used within a FeedProvider");
+    }
+    return feed;
+}
+
+export default useFeed;
+
+
+
+useFilter.ts
+
+// useFilter — returns filtered posts based on filterCategory
+//   → if filterCategory is "all" → return all posts
+//   → otherwise → return posts where post.category === filterCategory
+
+
+import useFeed from '../hooks/useFeed'
+import {type Post} from '../types/index';
+
+function useFilter(){
+    const {filterCategory, posts} = useFeed();
+
+        const filteredPosts : Post[] = filterCategory === 'all' ? posts : posts.filter(p => p.category === filterCategory)
+
+    return {filteredPosts}
+}
+
+export default useFilter;
+
+
+
+useLike.ts
+
+// useLike — already in FeedContext, expose it cleanly
+
+import useFeed from '../hooks/useFeed';
+
+interface UseLikeReturn{
+    toggleLike: (postId: string) => void,
+    isPostLiked: (postId: string) => boolean
+}
+
+function useLike(): UseLikeReturn{
+    const {posts, toggleLike} = useFeed();
+    const isPostLiked = (postId: string) => {
+        return posts.find(p => p.id === postId)?.isLiked ?? false
+    }
+    return {toggleLike, isPostLiked};
+}
+
+export default useLike;
+
+
+
+Navbar.tsx
+
+// Navbar — shows:
+//   app name, links to Feed + Profile
+//   highlight active link
+//   logout button if logged in
+
+import {NavLink} from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
+
+function Navbar() {
+    const {logout, isLoggedIn, user} = useAuth();
+    return(<>
+    <div className="flex items-center justify-between py-4 px-8 bg-gray-100">
+    <h1 className='font-bold'>Social Media App</h1>
+    <div className="flex justify-center gap-4">
+        <NavLink to='/feed' className={({ isActive }) =>
+    isActive ? "text-blue-600 font-bold" : "text-gray-600"}> Feed</NavLink>
+        <NavLink to={`/profile/${user?.username}`} className={({ isActive }) =>
+    isActive ? "text-blue-600 font-bold" : "text-gray-600"}>Profile</NavLink>
+    {isLoggedIn && <button className='cursor-pointer hover:text-gray-500 transition-all duration-200' onClick={logout}>Log out</button>}
+    </div>
+    </div>
+
+    </>)
+}
+
+export default Navbar;
+
+
+
+PostCard.tsx
+
+// PostCard — shows:
+//   avatar, username, caption, image, like button with count
+//   category tag, liked/unliked state
+
+import useFeed from '../hooks/useFeed'
+
+import {type Post} from '../types/index'
+import { Heart } from 'lucide-react';
+
+interface PostCardprop{
+    post: Post
+}
+
+function PostCard({post}: PostCardprop){
+    const { toggleLike } = useFeed();
+
+    return(<>
+        <div key={post.id} className="flex flex-col gap-2 bg-gray-200 p-4 rounded-md w-50%">
+            <div className="flex items-center mb-2 gap-1.5">
+                <img className='h-5 w-5 rounded-full' src={post.avatar} alt={post.username} />
+                <span>{post.username}</span>
+                <span className="text-sm text-gray-500">{post.category}</span>
+            </div>
+            <img className='w-80 object-cover' src={post.imageUrl} alt={post.caption} />
+            <p>Caption: {post.caption}</p>
+            <div className="flex items-center">
+                <button className="text-gray cursor-pointer" onClick={() => toggleLike(post.id)}><Heart
+                className="w-5 h-5 transition-all duration-300"
+                 fill={post.isLiked ? 'red' : 'none'}
+                    stroke={post.isLiked ? 'red' : 'currentColor'}
+                 /></button>
+                <span className="ml-2">{post.likes}</span>
+            </div>
+        </div>
+    </>)
+}
+export default PostCard;
+
+
+
+PostComposer.tsx
+
+// PostComposer — form with:
+//   caption (textarea), imageUrl (input), category (select)
+//   validate: caption required, imageUrl required
+//   on submit → addPost from context → reset form
+
+import { useState } from 'react'
+import useFeed from '../hooks/useFeed'
+import type { NewPostForm, Category } from '../types/index'
+
+function PostComposer(){
+    const { addPost } = useFeed();
+    const [form, setForm] = useState<NewPostForm>({
+        caption: '',
+        imageUrl: '',
+        category: 'tech'
+    });
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!form.caption || !form.imageUrl) return;
+        addPost(form);
+        setForm({
+            caption: '',
+            imageUrl: '',
+            category: 'tech'
+        });
+    };
+
+    return(
+        <>
+        
+            <h1 className="text-2xl font-bold m-4">Create Post</h1>
+        <div className="flex flex-col items-center justify-center w-full">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-4 border rounded-md shadow-md w-2/3 max-w-lg">
+            <textarea className="border p-2 rounded-md" rows={3}
+                placeholder="What's on your mind?"
+                value={form.caption}
+                onChange={(e) => setForm({...form, caption: e.target.value})}
+            />
+            <input className="border p-2 rounded-md"
+                type="url"
+                placeholder="Image URL"
+                value={form.imageUrl}
+                onChange={(e) => setForm({...form, imageUrl: e.target.value})}
+            />
+            <select className="border p-2 rounded-md"
+                value={form.category}
+                onChange={(e) => setForm({...form, category: e.target.value as Category})}
+            >
+                <option value="tech">Tech</option>
+                <option value="lifestyle">Lifestyle</option>
+                <option value="travel">Travel</option>
+                <option value="food">Food</option>
+            </select>
+            <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+                Post
+            </button>
+        </form>
+        </div>
+        
+        </>
+    );
+}
+
+export default PostComposer;
+
+
+
+ProtectedRoute.tsx
+
+import { Navigate, Outlet } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+
+function ProtectedRoute() {
+    const { isLoggedIn } = useAuth();
+    if (!isLoggedIn) {
+        return <Navigate to="/login" replace />;
+    }
+    return <Outlet />;
+}
+
+export default ProtectedRoute;
+
+
+
+Feed.tsx
+
+// Feed page:
+//   category filter buttons at top
+//   PostComposer to add new posts
+//   filtered post list using useFilter hook
+
+import useFilter from '../hooks/useFilter'
+import type { Category} from '../types';
+import PostCard from '../components/PostCard'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import {useLocation} from 'react-router-dom'
+import type React from 'react';
+
+function Feed(){
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const {filteredPosts} = useFilter();
+    const { from } = location.state || {};
+    const filter = (searchParams.get('filter') ?? 'all') as Category;
+    const handleCreatePost = () => {
+        navigate('/createpost');
+    }
+    const handleFilterPost = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSearchParams({filter: e.target.value})
+    }
+    return (<>
+    <div className="flex flex-col gap-4 bg-gray-300 p-4">
+        <div className="flex justify-between items-center h-16 p-4 rounded-md">
+            <h1 className='text-2xl font-bold'>Feed</h1>
+            {from && <span>{from}</span>}
+            <div className="flex gap-2 items-center">
+                <select className="bg-gray-800 p-2 rounded-md text-white font-bold cursor-pointer outline-none focus:rounded-b-none" value={filter} onChange={handleFilterPost}>
+                    <option value="all">All</option>
+                    <option value="tech">Tech</option>
+                    <option value="lifestyle">LifeStyle</option>
+                    <option value="travel">Travel</option>
+                    <option value="food">Food</option>
+                </select>
+                <button className="bg-amber-500 hover:bg-amber-600 h-10 text-center w-10 text-white font-bold py-2 px-4 rounded-full cursor-pointer" onClick={handleCreatePost}>
+                    +
+                </button>
+            </div>
+        </div>
+        <div className="flex flex-col gap-4 items-center">
+            {
+                filteredPosts.map(filteredpost => (
+                    <PostCard key={filteredpost.id} post={filteredpost}/>
+                ))
+            }
+        </div>
+    </div>
+    </>)
+}
+
+export default Feed;
+
+
+
+LogIn.tsx
+
+// Login page:
+//   username input
+//   login button → sets user in context → navigate to feed
+
+import { useState } from 'react';
+import useAuth from '../hooks/useAuth'
+import {useNavigate} from 'react-router-dom'
+
+function Login(){
+    const navigate = useNavigate();
+    const {login} = useAuth();
+    const [username, setUsername] = useState('');
+    const handleLogin = () => {
+        if (!username.trim()) return;
+        login(username);
+        navigate('/feed',{
+            state:{from: 'Logged in successfully!'},
+            replace: true
+        }
+        );
+    }
+    const handlekey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if(e.key === 'Enter'){
+            handleLogin();
+        }
+        return;
+    }
+    return(<>
+    <div className="flex justify-center items-center h-screen bg-amber-100">
+        <div className="flex flex-col items-center justify-between border-b-4 border-amber-500 bg-amber-200 rounded-2xl h-3/4 w-3/4 mb-4 pb-4">
+        <h1 className='text-4xl font-bold mt-7'>Login</h1>
+    <div className="flex flex-col self-start rounded-2xl p-4 w-full">
+        <p className='text-xs ml-1'>Enter your username to login</p>
+        <input type="text" className='bg-amber-300 rounded-2xl p-2 mt-2 w-full transition-all duration-300' value={username} placeholder='Enter username...' onChange={e => setUsername(e.target.value)} onKeyDown={handlekey} />
+    </div>
+        <button className='bg-amber-500 hover:bg-amber-600 cursor-pointer transition-all duration-300 text-white font-bold mb-4 py-2 px-4 rounded' onClick={handleLogin}>
+            Login
+        </button>
+    </div>
+    </div>
+    
+    </>)
+}
+
+export default Login;
+
+
+
+PageNotFound.tsx
+
+function PageNotFound() {
+    
+  return (
+    <>
+      <main className="grid min-h-full place-items-center bg-gray-900 px-6 py-24 sm:py-32 lg:px-8">
+        <div className="text-center">
+          <p className="text-base font-semibold text-indigo-400">404</p>
+          <h1 className="mt-4 text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">
+            Page not found
+          </h1>
+          <p className="mt-6 text-lg font-medium text-pretty text-gray-400 sm:text-xl/8">
+            Sorry, we couldn’t find the page you’re looking for.
+          </p>
+          <div className="mt-10 flex items-center justify-center gap-x-6">
+            <a
+              href="#"
+              className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              Go back home
+            </a>
+            <a href="#" className="text-sm font-semibold text-white">
+              Contact support <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        </div>
+      </main>
+    </>
+  )
+}
+
+export default PageNotFound;
+
+
+
+Profile.tsx
+
+// Profile page (/profile/:username):
+//   show user info — avatar, username, bio, followers
+//   follow/unfollow button with count
+//   show only posts by that user
+
+import useAuth from '../hooks/useAuth'
+import useFeed from '../hooks/useFeed'
+import PostCard from '../components/PostCard'
+import {useParams} from 'react-router-dom'
+import type { Post } from '../types/index'
+
+
+function Profile(){
+    const {posts} = useFeed();
+    const { username } = useParams();
+    const { user, toggleFollow } = useAuth();
+    
+    if (!user) return <p>Please log in</p>;
+    if (user.username !== username) return <p>User not found</p>;
+
+    const userPosts : Post[] = posts.filter(p => p.username === user.username);
+
+    return(<>
+    
+    <h1 className='font-bold text-3xl text-center m-4'>Profile</h1>
+    <div className="flex flex-col items-center">
+        <div className="h-30 w-30 rounded-full">
+            <img className='rounded-full h-full w-full object-cover object-top' src={user.avatar} alt={user.username} />
+        </div>
+        <h1 className='font-bold text-2xl'>@{user.username}</h1>
+        <div className="flex gap-4">
+            <span className='font-bold text-xl'>Followers: {user.followers}</span>
+            <button className={`cursor-pointer bg-blue-500 rounded-md px-3 py-1 text-white font-bold ${user.isFollowing ? 'bg-gray-400 hover:bg-gray-500' : 'hover:bg-blue-600'} transition-all duration-200`} onClick={() => toggleFollow(user.username)}> {user.isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+        </div>
+        <div className="flex flex-col gap-2 bg-gray-300 p-4 rounded-md m-4">
+            <h4 className='text-xl'>Bio: </h4>
+            <p className='font-semibold bg-gray-200 p-4 rounded-md'>{user.bio}</p>
+        </div>
+        <div className="w-3/4 flex flex-col gap-4 mb-4">
+            <h1 className='text-2xl font-bold mb-4'>Posts</h1>
+            {
+                userPosts.map(userPost => (
+                    <PostCard key={userPost.id} post={userPost}></PostCard>
+                ))
+            }
+        </div>
+    </div>
+    </>)
+}
+
+export default Profile;
+
+
+
+App.tsx
+
+import { Routes, Route } from 'react-router-dom'
+import FeedContext from './context/FeedContext'
+import AuthContext from './context/AuthContext'
+import PageNotFound from './Pages/PageNotFound'
+import LoginPage from './Pages/Login'
+import ProtectedRoute from './components/ProtectedRoute'
+import Feed from './Pages/Feed';
+import CreatePost from './components/PostComposer';
+import Profile from './Pages/Profile';
+import Navbar from './components/Navbar';
+
+function App(){
+  return (
+    <>
+      <AuthContext>
+          <FeedContext>
+            <Navbar />
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<ProtectedRoute />} >
+            <Route path="/" element={<Feed />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/createpost" element={<CreatePost />} />
+          </Route>
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+          </FeedContext>
+      </AuthContext>
+    </>
+  );
+}
+
+export default App;
+
+
+
+main.tsx
+
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+import { BrowserRouter } from 'react-router-dom'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>,
+)
