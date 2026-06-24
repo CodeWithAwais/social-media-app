@@ -5,12 +5,14 @@
 // - has logout() function
 // - has isLoggedIn: boolean derived from user !== null
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AuthContext, type User } from '../types/index'
 
 function AuthProvider({children} : {children: ReactNode}){
     
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        return JSON.parse(localStorage.getItem('user') as string) || null
+    });
     const isLoggedIn = user != null;
     function login(username: string){
         const fakeUser: User = {
@@ -24,6 +26,9 @@ function AuthProvider({children} : {children: ReactNode}){
         setUser(fakeUser)
         
     }
+    useEffect(() => {
+        localStorage.setItem('user', JSON.stringify(user))
+    }, [user])
     function logout(){
             setUser(null);
     }

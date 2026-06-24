@@ -4,8 +4,9 @@
 
 import useFeed from '../hooks/useFeed';
 import { type Post } from '../types/index';
-import { Heart, Tag } from 'lucide-react';
+import { Heart, Tag, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useAuth from '../hooks/useAuth';
  
 interface PostCardProps {
     post: Post;
@@ -20,7 +21,8 @@ const categoryColors: Record<string, string> = {
 };
  
 function PostCard({ post }: PostCardProps) {
-    const { toggleLike } = useFeed();
+    const { user } = useAuth();
+    const { toggleLike, removePosts } = useFeed();
  
     return (
         <motion.div
@@ -51,10 +53,19 @@ function PostCard({ post }: PostCardProps) {
                 </div>
  
                 {/* Category badge */}
-                <span className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border ${categoryColors[post.category] ?? categoryColors.all}`}>
+                <div className=" flex gap-2 items-center">
+                    <span className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border ${categoryColors[post.category] ?? categoryColors.all}`}>
                     <Tag className="w-3 h-3" />
                     {post.category}
-                </span>
+                    </span>
+                    {post.username === user?.username && (<button 
+                        onClick={() => removePosts(post.id)}
+                        className="text-white/30 hover:text-red-400 transition-colors duration-200 cursor-pointer"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>)}
+                </div>
+                
             </div>
  
             {/* Image */}

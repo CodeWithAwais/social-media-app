@@ -6,10 +6,11 @@
 import useAuth from '../hooks/useAuth';
 import useFeed from '../hooks/useFeed';
 import PostCard from '../components/PostCard';
-import { useParams } from 'react-router-dom';
+import { useParams} from 'react-router-dom';
 import type { Post } from '../types/index';
 import { motion } from 'framer-motion';
-import { Users, UserCheck, UserPlus, Grid } from 'lucide-react';
+import { Users, UserCheck, UserPlus, Grid} from 'lucide-react';
+import NewPost from '../components/NewPost';
  
 function Profile() {
     const { posts } = useFeed();
@@ -80,7 +81,8 @@ function Profile() {
                     </div>
  
                     {/* Stats */}
-                    <div className="flex gap-6 pt-4 border-t border-white/5">
+                    <div className="flex justify-between gap-6 pt-4 border-t border-white/5">
+                    <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-purple-400" />
                             <span className="text-white font-semibold">{user.followers.toLocaleString()}</span>
@@ -91,6 +93,9 @@ function Profile() {
                             <span className="text-white font-semibold">{userPosts.length}</span>
                             <span className="text-white/30 text-sm">posts</span>
                         </div>
+                    </div>
+                    {/*  Button to create a new post, navigates to the create post page */}
+                        <NewPost />
                     </div>
                 </motion.div>
  

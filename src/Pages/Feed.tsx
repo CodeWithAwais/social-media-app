@@ -7,10 +7,11 @@ import useFilter from '../hooks/useFilter';
 import useFeed from '../hooks/useFeed';
 import type { Category } from '../types';
 import PostCard from '../components/PostCard';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import NewPost from '../components/NewPost';
  
 const categories: { value: Category; emoji: string; label: string }[] = [
     { value: 'all', emoji: '⚡', label: 'All' },
@@ -19,10 +20,9 @@ const categories: { value: Category; emoji: string; label: string }[] = [
     { value: 'travel', emoji: '🌍', label: 'Travel' },
     { value: 'food', emoji: '🍜', label: 'Food' },
 ];
- 
+
 function Feed() {
     const location = useLocation();
-    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { filteredPosts } = useFilter();
     const { setFilterCategory } = useFeed();
@@ -66,15 +66,8 @@ function Feed() {
                         <h1 className="text-2xl font-bold text-white">Your Feed</h1>
                         <p className="text-white/30 text-sm">{filteredPosts.length} posts</p>
                     </div>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => navigate('/createpost')}
-                        className="flex items-center gap-2 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 cursor-pointer"
-                    >
-                        <Plus className="w-4 h-4" />
-                        New Post
-                    </motion.button>
+                    {/*  Button to create a new post, navigates to the create post page */}
+                    <NewPost />
                 </div>
  
                 {/* Category filter pills */}
@@ -118,7 +111,7 @@ function Feed() {
                                     transition={{ delay: i * 0.05 }}
                                     className="w-full flex justify-center"
                                 >
-                                    <PostCard post={post} />
+                                    <PostCard post={post}/>
                                 </motion.div>
                             ))
                         )}

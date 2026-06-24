@@ -53,7 +53,8 @@ export interface FeedContextType {
     addPost: (form: NewPostForm) => void,
     toggleLike: (postId: string) => void,
     filterCategory: Category,
-    setFilterCategory: (category: Category) => void
+    setFilterCategory: (category: Category) => void,
+    removePosts: (postId: string) => void
 }
 
 export const FeedContext = createContext<FeedContextType | null>(null);
