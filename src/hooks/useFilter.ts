@@ -3,7 +3,7 @@
 //   → otherwise → return posts where post.category === filterCategory
 
 
-import useFeed from '../hooks/useFeed'
+import useFeed from './useFeed'
 import {type Post} from '../types/index';
 import { type Category } from '../types/index';
 import { useSearchParams } from 'react-router-dom'

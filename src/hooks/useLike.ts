@@ -1,6 +1,6 @@
 // useLike — already in FeedContext, expose it cleanly
 
-import useFeed from '../hooks/useFeed';
+import useFeed from './useFeed';
 
 interface UseLikeReturn{
     toggleLike: (postId: string) => void,

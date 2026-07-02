@@ -8,6 +8,7 @@ import Feed from './Pages/Feed';
 import CreatePost from './components/PostComposer';
 import Profile from './Pages/Profile';
 import WithNavbar from './components/WithNavbar';
+import FirebaseGuide from './components/FirebaseGuide';
 
 function App(){
   return (
@@ -22,6 +23,7 @@ function App(){
               <Route path="/feed" element={<Feed />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/createpost" element={<CreatePost />} />
+              <Route path="/firebase-guide" element={<FirebaseGuide />} />
             </Route>
           </Route>
           <Route path="*" element={<PageNotFound />} />

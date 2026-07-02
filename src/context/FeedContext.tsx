@@ -11,40 +11,6 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { FeedContext, type Category, type Post, type NewPostForm } from '../types/index';
 import useAuth from '../hooks/useAuth'
 
-// const fakePosts : Post[] = [{
-//         id: 'P-001',
-//         userId: 'U-001',
-//         username: 'awais',
-//         avatar: `https://i.pravatar.cc/150?u=awais`,
-//         caption: 'my first post',
-//         imageUrl: 'https://picsum.photos/200/300',
-//         likes: 0,
-//         isLiked: false,
-//         category: "tech",
-//         createdAt: Date.now().toString()
-//     },{
-//         id: 'P-002',
-//         userId: 'U-001',
-//         username: 'awais',
-//         avatar: `https://i.pravatar.cc/150?u=ali`,
-//         caption: 'my 2nd post',
-//         imageUrl: 'https://picsum.photos/200/300',
-//         likes: 0,
-//         isLiked: false,
-//         category: "food",
-//         createdAt: Date.now().toString()
-//     },{
-//         id: 'P-003',
-//         userId: 'U-001',
-//         username: 'awais',
-//         avatar: `https://i.pravatar.cc/150?u=sana`,
-//         caption: 'my 3rd post',
-//         imageUrl: 'https://picsum.photos/200/300',
-//         likes: 0,
-//         isLiked: false,
-//         category: 'travel',
-//         createdAt: Date.now().toString()
-//     }]
 function FeedProvider({children}: {children: ReactNode}){
     const { user } = useAuth();
     const [posts, setPosts] = useState<Post[]>(() => {
