@@ -1,14 +1,8 @@
 import { createContext } from 'react'
+import { type User } from 'firebase/auth'
 
 // User — id, username, avatar, bio, followers, isFollowing
-export interface User {
-    id: string
-    username: string,
-    avatar: string,
-    bio: string,
-    followers: number,
-    isFollowing: boolean
-}
+
 
 // Post — id, userId, username, caption, imageUrl,
 //         likes, isLiked, category, createdAt
@@ -38,10 +32,11 @@ export interface NewPostForm {
 // AuthContextType — user, login, logout, isLoggedIn
 export interface AuthContextType {
     user: User | null,
-    login: (username: string) => void,
+    isLoading: boolean,
+    registerWithEmail: (email: string, password: string, displayName: string) => void,
+    loginWithEmail: (email: string, password: string) => void,
+    loginWithGoogle: () => void,
     logout: () => void,
-    isLoggedIn: boolean,
-    toggleFollow: (username: string) => void
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
