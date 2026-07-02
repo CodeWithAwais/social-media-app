@@ -1,50 +1,44 @@
-// Login page:
-//   username input
-//   login button → sets user in context → navigate to feed
-
-import { useState } from 'react';
+import { useState } from "react";
 import useAuth from '../hooks/useAuth';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, ArrowRight, Sparkles } from 'lucide-react';
- 
-function Login() {
+
+function SignUp(){
     const navigate = useNavigate();
-    const { loginWithEmail, loginWithGoogle } = useAuth();
+    const { registerWithEmail, loginWithGoogle } = useAuth();
+    const [focused, setFocused] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [focused, setFocused] = useState(false);
- 
-    const handleLogin = async () => {
-        if (!email.trim() || !password.trim()) return;
-        try{
-            await loginWithEmail(email, password);
-            navigate('/feed', {
-                state: { from: 'Logged in successfully!' },
-                replace: true
-            });
-        } catch(err) {
-            console.error(err);
-            setError('Invalid email or password');
-        }
-    };
-    const handleLoginWithGoogle = async () => {
-        try { 
-            await loginWithGoogle();
-            navigate('/feed', {
-                state: { from: 'Logged in successfully!' },
+    const [username, setUsername] = useState('')
+    
+    const handleSignUp = () => {
+        if(!email.trim() || !password.trim() || !username.trim()) return;
+        try {
+            registerWithEmail(email, password, username);
+            navigate('/login', {
+                state: { from: 'Account created successfully!' },
                 replace: true
             });
         } catch(err) {
             console.error(err);
         }
     }
+    const handleSignUpWithGoogle = async () => {
+        try {
+            await loginWithGoogle();
+            navigate('/feed', {
+                    state: { from: 'Account created successfully!' },
+                    replace: true
+                });
+        } catch(err) {
+            console.error(err);
+        }
+    }
     const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') handleLogin();
+        if (e.key === 'Enter') handleSignUp();
     };
- 
-    return (
+    return(
         <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center overflow-hidden relative">
  
             {/* Ambient background blobs */}
@@ -74,7 +68,34 @@ function Login() {
                         <h1 className="text-3xl font-bold text-white tracking-tight">Welcome back</h1>
                         <p className="text-white/40 text-sm mt-1">Sign in to your account</p>
                     </motion.div>
- 
+
+                    {/* Input */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                        className="mb-4"
+                    >
+                        <label className="text-white/50 text-xs font-medium uppercase tracking-widest mb-2 block">
+                            Username
+                        </label>
+                        <div className={`flex items-center gap-3 bg-white/5 border rounded-xl px-4 py-3 transition-all duration-300 ${
+                            focused ? 'border-purple-500/70 shadow-lg shadow-purple-500/10' : 'border-white/10'
+                        }`}>
+                            <User className="w-4 h-4 text-white/30" />
+                            <input
+                                type="text"
+                                className="bg-transparent text-white placeholder-white/20 flex-1 outline-none text-sm"
+                                placeholder="Enter your Username..."
+                                value={username}
+                                onChange={e => setUsername(e.target.value)}
+                                onKeyDown={handleKey}
+                                onFocus={() => setFocused(true)}
+                                onBlur={() => setFocused(false)}
+                            />
+                        </div>
+                    </motion.div>
+
                     {/* Input */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -101,7 +122,8 @@ function Login() {
                             />
                         </div>
                     </motion.div>
-                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+                    
                     {/* Input */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -128,8 +150,8 @@ function Login() {
                             />
                         </div>
                     </motion.div>
-                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-                    {/* Login button */}
+ 
+                    {/* Signup button */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -138,16 +160,16 @@ function Login() {
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={handleLogin}
+                            onClick={handleSignUp}
                             disabled={!email.trim()}
                             className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-purple-500/20 cursor-pointer"
                         >
-                            Sign in
+                            Sign Up
                             <ArrowRight className="w-4 h-4" />
                         </motion.button>
                     </motion.div>
 
-                    {/* Login button */}
+                    {/* Signup with google button */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -156,20 +178,17 @@ function Login() {
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={handleLoginWithGoogle}
+                            onClick={handleSignUpWithGoogle}
                             className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold mt-3 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-purple-500/20 cursor-pointer"
                         >
-                            Sign in with Google
+                            Continue with Google
                             <ArrowRight className="w-4 h-4" />
                         </motion.button>
                     </motion.div>
-                    <p className='text-white text-sm text-center mt-2'>Don't have an account ?
-                        <button className='text-purple-400 ml-2 cursor-pointer hover:text-purple-600 transition-all duration-200' onClick={() => navigate('/signup')}>Sign up</button>
-                    </p>
                 </div>
             </motion.div>
         </div>
-    );
+    )
 }
- 
-export default Login;
+
+export default SignUp;

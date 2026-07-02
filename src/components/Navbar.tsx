@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { Home, User, LogOut, Heart } from 'lucide-react';
  
 function Navbar() {
-    const { logout, isLoggedIn, user } = useAuth();
+    const { logout, user } = useAuth();
  
     return (
         <motion.nav
@@ -45,7 +45,7 @@ function Navbar() {
                     </NavLink>
  
                     <NavLink
-                        to={`/profile/${user?.username}`}
+                        to={`/profile/${user}`}
                         className={({ isActive }) =>
                             `flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                                 isActive
@@ -60,7 +60,7 @@ function Navbar() {
                 </div>
  
                 {/* Logout */}
-                {isLoggedIn && (
+                {(
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}

@@ -32,7 +32,7 @@ function useFirebaseAuth(){
             throw error;
         }
     }
-    const loginWithEmail = async (email: string, password: string) => {
+    const loginWithEmail = async (email: string, password: string): Promise<User> => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             return userCredential.user;

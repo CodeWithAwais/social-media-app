@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import FeedContext from './context/FeedContext'
 import AuthContext from './context/AuthContext'
 import PageNotFound from './Pages/PageNotFound'
+import SignUpPage from './Pages/SignUp'
 import LoginPage from './Pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import Feed from './Pages/Feed';
@@ -16,6 +17,7 @@ function App(){
       <AuthContext>
           <FeedContext>
         <Routes>
+          <Route path='/signup' element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute />} >
             <Route element={<WithNavbar />}>
