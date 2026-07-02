@@ -10,13 +10,14 @@ import { User, ArrowRight, Sparkles } from 'lucide-react';
  
 function Login() {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { loginWithEmail } = useAuth();
     const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [focused, setFocused] = useState(false);
  
     const handleLogin = () => {
-        if (!username.trim()) return;
-        login(username);
+        if (!username.trim() || !password.trim()) return;
+        loginWithEmail(username, password);
         navigate('/feed', {
             state: { from: 'Logged in successfully!' },
             replace: true
@@ -78,6 +79,33 @@ function Login() {
                                 placeholder="Enter your username..."
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
+                                onKeyDown={handleKey}
+                                onFocus={() => setFocused(true)}
+                                onBlur={() => setFocused(false)}
+                            />
+                        </div>
+                    </motion.div>
+
+                    {/* Input */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                        className="mb-4"
+                    >
+                        <label className="text-white/50 text-xs font-medium uppercase tracking-widest mb-2 block">
+                            Password
+                        </label>
+                        <div className={`flex items-center gap-3 bg-white/5 border rounded-xl px-4 py-3 transition-all duration-300 ${
+                            focused ? 'border-purple-500/70 shadow-lg shadow-purple-500/10' : 'border-white/10'
+                        }`}>
+                            <User className="w-4 h-4 text-white/30" />
+                            <input
+                                type="password"
+                                className="bg-transparent text-white placeholder-white/20 flex-1 outline-none text-sm"
+                                placeholder="Enter your password..."
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
                                 onKeyDown={handleKey}
                                 onFocus={() => setFocused(true)}
                                 onBlur={() => setFocused(false)}
