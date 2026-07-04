@@ -33,9 +33,9 @@ export interface NewPostForm {
 export interface AuthContextType {
     user: User | null,
     isLoading: boolean,
-    registerWithEmail: (email: string, password: string, displayName: string) => void,
-    loginWithEmail: (email: string, password: string) => void,
-    loginWithGoogle: () => void,
+    registerWithEmail: (email: string, password: string, displayName: string) => Promise<User>,
+    loginWithEmail: (email: string, password: string) => Promise<User>,
+    loginWithGoogle: () => Promise<User>,
     logout: () => void,
 }
 

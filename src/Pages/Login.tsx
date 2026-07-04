@@ -129,6 +129,7 @@ function Login() {
                         </div>
                     </motion.div>
                     {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
                     {/* Login button */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -147,7 +148,7 @@ function Login() {
                         </motion.button>
                     </motion.div>
 
-                    {/* Login button */}
+                    {/* Login with Google button */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}

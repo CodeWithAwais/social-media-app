@@ -7,7 +7,10 @@ import { createUserWithEmailAndPassword,
          signInWithPopup, 
          signOut,
          updateProfile,
-         type User } from 'firebase/auth'
+         type User ,
+         getAdditionalUserInfo} from 'firebase/auth'
+import { db } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 function useFirebaseAuth(){
     const [user, setUser] = useState<User | null>(null);
@@ -22,10 +25,17 @@ function useFirebaseAuth(){
         return unsubscribe;
     }, []);
 
-    const registerWithEmail = async (email: string, password: string, displayName: string) => {
+    const registerWithEmail = async (email: string, password: string, displayName: string): Promise<User> => {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             await updateProfile(userCredential.user, { displayName });
+            const uid = userCredential.user.uid;
+            await setDoc(doc(db, 'users', uid), {
+                name: displayName,
+                email: email,
+                bio: '',
+                followerCount: 0
+            })
             return userCredential.user;
         } catch (error) {
             console.error("Error registering with email:", error);
@@ -41,10 +51,21 @@ function useFirebaseAuth(){
             throw error;
         }
     }
-    const loginWithGoogle = async () => {
+    const loginWithGoogle = async (): Promise<User> => {
         try {
             const provider = new GoogleAuthProvider();
             const userCredential = await signInWithPopup(auth, provider);
+            const uid = userCredential.user.uid;
+            const info = getAdditionalUserInfo(userCredential);
+            
+            if(info?.isNewUser){
+                await setDoc(doc(db, 'users', uid), {
+                    name: userCredential.user.displayName ?? '',
+                    email: userCredential.user.email ?? '',
+                    bio: '',
+                    followerCount: 0
+                })
+            }
             return userCredential.user;
         } catch (error) {
             console.error("Error logging in with Google:", error);

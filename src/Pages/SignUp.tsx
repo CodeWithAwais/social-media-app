@@ -12,10 +12,10 @@ function SignUp(){
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('')
     
-    const handleSignUp = () => {
+    const handleSignUp = async () => {
         if(!email.trim() || !password.trim() || !username.trim()) return;
         try {
-            registerWithEmail(email, password, username);
+            await registerWithEmail(email, password, username);
             navigate('/login', {
                 state: { from: 'Account created successfully!' },
                 replace: true
