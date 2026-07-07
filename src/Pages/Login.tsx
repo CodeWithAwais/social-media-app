@@ -7,15 +7,17 @@ import useAuth from '../hooks/useAuth';
 import { useNavigate} from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, ArrowRight, Sparkles } from 'lucide-react';
+import useFirebaseFireStore from '../firebase/hooks/useFirebaseFireStore';
  
 function Login() {
+    const { getUserData } = useFirebaseFireStore();
     const navigate = useNavigate();
     const { loginWithEmail, loginWithGoogle } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [focused, setFocused] = useState(false);
- 
+
     const handleLogin = async () => {
         if (!email.trim() || !password.trim()) return;
         try{
@@ -31,11 +33,16 @@ function Login() {
     };
     const handleLoginWithGoogle = async () => {
         try { 
-            await loginWithGoogle();
-            navigate('/feed', {
-                state: { from: 'Logged in successfully!' },
-                replace: true
-            });
+            const userCreds = await loginWithGoogle();
+            const fetchData = await getUserData(userCreds);
+            if(fetchData?.username === null) {
+                navigate('/chooseusername');
+            } else {
+                navigate('/feed', {
+                    state: { from: 'Logged in successfully!' },
+                    replace: true
+                });
+            }
         } catch(err) {
             console.error(err);
         }

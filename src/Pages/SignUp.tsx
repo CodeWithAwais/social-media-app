@@ -10,16 +10,13 @@ function SignUp(){
     const [focused, setFocused] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('')
-    
+    const [displayName, setDisplayName] = useState('');
+
     const handleSignUp = async () => {
-        if(!email.trim() || !password.trim() || !username.trim()) return;
+        if(!email.trim() || !password.trim() || !displayName.trim()) return;
         try {
-            await registerWithEmail(email, password, username);
-            navigate('/login', {
-                state: { from: 'Account created successfully!' },
-                replace: true
-            });
+            await registerWithEmail(email, password, displayName);
+            navigate('/chooseusername');
         } catch(err) {
             console.error(err);
         }
@@ -27,10 +24,7 @@ function SignUp(){
     const handleSignUpWithGoogle = async () => {
         try {
             await loginWithGoogle();
-            navigate('/feed', {
-                    state: { from: 'Account created successfully!' },
-                    replace: true
-                });
+            navigate('/chooseusername');
         } catch(err) {
             console.error(err);
         }
@@ -65,11 +59,11 @@ function SignUp(){
                         <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4 shadow-lg shadow-purple-500/30">
                             <Sparkles className="w-8 h-8 text-white" />
                         </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight">Welcome back</h1>
-                        <p className="text-white/40 text-sm mt-1">Sign in to your account</p>
+                        <h1 className="text-3xl font-bold text-white tracking-tight">Welcome!</h1>
+                        <p className="text-white/40 text-sm mt-1">Sign up now</p>
                     </motion.div>
 
-                    {/* Input */}
+                    {/* Input DisplayName */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -77,7 +71,7 @@ function SignUp(){
                         className="mb-4"
                     >
                         <label className="text-white/50 text-xs font-medium uppercase tracking-widest mb-2 block">
-                            Username
+                            Display Name
                         </label>
                         <div className={`flex items-center gap-3 bg-white/5 border rounded-xl px-4 py-3 transition-all duration-300 ${
                             focused ? 'border-purple-500/70 shadow-lg shadow-purple-500/10' : 'border-white/10'
@@ -86,9 +80,9 @@ function SignUp(){
                             <input
                                 type="text"
                                 className="bg-transparent text-white placeholder-white/20 flex-1 outline-none text-sm"
-                                placeholder="Enter your Username..."
-                                value={username}
-                                onChange={e => setUsername(e.target.value)}
+                                placeholder="Enter your Display Name..."
+                                value={displayName}
+                                onChange={e => setDisplayName(e.target.value)}
                                 onKeyDown={handleKey}
                                 onFocus={() => setFocused(true)}
                                 onBlur={() => setFocused(false)}
@@ -96,7 +90,7 @@ function SignUp(){
                         </div>
                     </motion.div>
 
-                    {/* Input */}
+                    {/* Input Email */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -124,7 +118,7 @@ function SignUp(){
                     </motion.div>
 
                     
-                    {/* Input */}
+                    {/* Input Password */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
