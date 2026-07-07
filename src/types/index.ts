@@ -1,8 +1,17 @@
 import { createContext } from 'react'
 import { type User } from 'firebase/auth'
 
-// User — id, username, avatar, bio, followers, isFollowing
+// AppUser — uid, displayName, avatar, bio, followers, isFollowing
 
+export interface AppUser {
+    username: string,
+    displayName: string,
+    email: string,
+    photoURL: string,
+    bio: string,
+    followerCount: number,
+    createdAt: string
+}
 
 // Post — id, userId, username, caption, imageUrl,
 //         likes, isLiked, category, createdAt
@@ -29,9 +38,9 @@ export interface NewPostForm {
     category: Category
 }
 
-// AuthContextType — user, login, logout, isLoggedIn
+// AuthContextType — currentUser, login, logout, isLoggedIn
 export interface AuthContextType {
-    user: User | null,
+    currentUser: User | null,
     isLoading: boolean,
     registerWithEmail: (email: string, password: string, displayName: string) => Promise<User>,
     loginWithEmail: (email: string, password: string) => Promise<User>,
@@ -53,3 +62,12 @@ export interface FeedContextType {
 }
 
 export const FeedContext = createContext<FeedContextType | null>(null);
+
+
+export interface UserContextType {
+    profileUser: AppUser | null,
+    isLoading: boolean,
+    fetchProfileUser: () => Promise<void>
+}
+
+export const UserContext = createContext<UserContextType | null>(null);
