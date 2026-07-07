@@ -10,27 +10,32 @@ import CreatePost from './components/PostComposer';
 import Profile from './Pages/Profile';
 import WithNavbar from './components/WithNavbar';
 import FirebaseGuide from './components/FirebaseGuide';
+import ChooseUsername from './Pages/ChooseUsername';
+import UserContext from './context/UserContext';
 
 function App(){
   return (
     <>
       <AuthContext>
+        <UserContext>
           <FeedContext>
-        <Routes>
-          <Route path='/signup' element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route element={<ProtectedRoute />} >
-            <Route element={<WithNavbar />}>
-              <Route path="/" element={<Feed />} />
-              <Route path="/feed" element={<Feed />} />
-              <Route path="/profile/:username" element={<Profile />} />
-              <Route path="/createpost" element={<CreatePost />} />
-              <Route path="/firebase-guide" element={<FirebaseGuide />} />
-            </Route>
-          </Route>
-          <Route path="*" element={<PageNotFound />} />
-        </Routes>
+            <Routes>
+              <Route path='/signup' element={<SignUpPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path='/chooseusername' element={<ChooseUsername />}/>
+              <Route element={<ProtectedRoute />} >
+                <Route element={<WithNavbar />}>
+                  <Route path="/" element={<Feed />} />
+                  <Route path="/feed" element={<Feed />} />
+                  <Route path="/profile/:username" element={<Profile />} />
+                  <Route path="/createpost" element={<CreatePost />} />
+                  <Route path="/firebase-guide" element={<FirebaseGuide />} />
+                </Route>
+              </Route>
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
           </FeedContext>
+        </UserContext>
       </AuthContext>
     </>
   );
