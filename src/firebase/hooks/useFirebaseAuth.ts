@@ -9,16 +9,16 @@ import { createUserWithEmailAndPassword,
          updateProfile,
          type User ,
          getAdditionalUserInfo} from 'firebase/auth'
-import { db } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import useFirebaseFireStore from '../hooks/useFirebaseFireStore'
 
 function useFirebaseAuth(){
-    const [user, setUser] = useState<User | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { setUserData } = useFirebaseFireStore();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
+            setCurrentUser(user);
             setIsLoading(false);
         });
 
@@ -28,14 +28,8 @@ function useFirebaseAuth(){
     const registerWithEmail = async (email: string, password: string, displayName: string): Promise<User> => {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, { displayName });
-            const uid = userCredential.user.uid;
-            await setDoc(doc(db, 'users', uid), {
-                name: displayName,
-                email: email,
-                bio: '',
-                followerCount: 0
-            })
+            await updateProfile(userCredential.user, { displayName, photoURL: `https://avatars.dicebear.com/api/initials/${displayName}.svg` });
+            await setUserData(userCredential.user);
             return userCredential.user;
         } catch (error) {
             console.error("Error registering with email:", error);
@@ -55,16 +49,10 @@ function useFirebaseAuth(){
         try {
             const provider = new GoogleAuthProvider();
             const userCredential = await signInWithPopup(auth, provider);
-            const uid = userCredential.user.uid;
             const info = getAdditionalUserInfo(userCredential);
             
             if(info?.isNewUser){
-                await setDoc(doc(db, 'users', uid), {
-                    name: userCredential.user.displayName ?? '',
-                    email: userCredential.user.email ?? '',
-                    bio: '',
-                    followerCount: 0
-                })
+                await setUserData(userCredential.user);
             }
             return userCredential.user;
         } catch (error) {
@@ -80,7 +68,7 @@ function useFirebaseAuth(){
             throw error;
         }
     }
-    return {user, isLoading, registerWithEmail, loginWithEmail, loginWithGoogle, logout};
+    return { currentUser, isLoading, registerWithEmail, loginWithEmail, loginWithGoogle, logout };
 }
 
 export default useFirebaseAuth;
