@@ -7,9 +7,11 @@ import { NavLink } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { motion } from 'framer-motion';
 import { Home, User, LogOut, Heart } from 'lucide-react';
+import useUser from '../hooks/useUser';
  
 function Navbar() {
-    const { logout, user } = useAuth();
+    const { logout } = useAuth();
+    const { profileUser } = useUser();
  
     return (
         <motion.nav
@@ -45,7 +47,7 @@ function Navbar() {
                     </NavLink>
  
                     <NavLink
-                        to={`/profile/${user}`}
+                        to={`/profile/${profileUser?.username}`}
                         className={({ isActive }) =>
                             `flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                                 isActive
