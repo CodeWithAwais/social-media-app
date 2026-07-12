@@ -1,7 +1,7 @@
 import {db} from '../firebase'
 import {doc, getDoc, setDoc, serverTimestamp, updateDoc} from 'firebase/firestore';
 import {type User} from 'firebase/auth';
-import { type AppUser } from '../../types/index';
+import { type UserProfile } from '../../types/index';
 // import { useState } from 'react';
 
 function useFirebaseFireStore(){
@@ -18,17 +18,17 @@ function useFirebaseFireStore(){
                 createdAt: serverTimestamp(),
         })
     }
-    const getUserData = async (user: User): Promise<AppUser | null> => {
+    const getUserData = async (user: User): Promise<UserProfile | null> => {
         if(!user) return null;
         const docSnap = await getDoc(doc(db, 'users', user.uid));
         if(docSnap.exists()){
-            return docSnap.data() as AppUser;
+            return docSnap.data() as UserProfile;
         } else {
             console.log('this user doesnt exist!')
             return null;
         }
     }
-    const updateUserData = async (user: User, updates: Partial<AppUser>) => {
+    const updateUserData = async (user: User, updates: Partial<UserProfile>) => {
         if(!user) return;
         await updateDoc(doc(db, 'users', user.uid), updates)
     }

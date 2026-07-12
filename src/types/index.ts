@@ -3,7 +3,7 @@ import { type User } from 'firebase/auth'
 
 // AppUser — uid, displayName, avatar, bio, followers, isFollowing
 
-export interface AppUser {
+export interface UserProfile {
     username: string,
     displayName: string,
     email: string,
@@ -66,7 +66,7 @@ export const FeedContext = createContext<FeedContextType | null>(null);
 
 
 export interface UserContextType {
-    profileUser: AppUser | null,
+    profileUser: UserProfile | null,
     isLoading: boolean,
     fetchProfileUser: () => Promise<void>
 }
