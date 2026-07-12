@@ -1,12 +1,12 @@
 import useAuth from '../hooks/useAuth'
 import { useState, useEffect, type ReactNode } from "react";
-import { UserContext, type AppUser } from '../types/index'
+import { UserContext, type UserProfile } from '../types/index'
 import useFirebaseFireStore from "../firebase/hooks/useFirebaseFireStore";
 
 function UserProvider({children} : {children: ReactNode}){
     const { currentUser } = useAuth();
     const { getUserData } = useFirebaseFireStore();
-    const [profileUser, setProfileUser] = useState<AppUser | null>(null);
+    const [profileUser, setProfileUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchProfileUser = async () => {
