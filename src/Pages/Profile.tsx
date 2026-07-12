@@ -6,30 +6,46 @@
 import useAuth from '../hooks/useAuth';
 import useFeed from '../hooks/useFeed';
 import PostCard from '../components/PostCard';
-import { useParams} from 'react-router-dom';
+import { useParams, useNavigate} from 'react-router-dom';
 import type { Post } from '../types/index';
 import { motion } from 'framer-motion';
-import { Users, UserCheck, UserPlus, Grid} from 'lucide-react';
+import { Users, UserCheck, UserPlus, Grid, Trash2} from 'lucide-react';
 import NewPost from '../components/NewPost';
+import useUser from '../hooks/useUser';
+import ConfirmModal from '../components/ConfirmModal';
+import { useState } from 'react';
  
 function Profile() {
-    const { posts } = useFeed();
+    // const { posts } = useFeed();
+    const navigate = useNavigate();
     const { username } = useParams();
-    const { user, toggleFollow } = useAuth();
+    const { currentUser, deleteAccount } = useAuth();
+    const { profileUser } = useUser();
+    const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
  
-    if (!user) return (
+    if (!currentUser) return (
         <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
             <p className="text-white/30">Please log in</p>
         </div>
     );
  
-    if (user.username !== username) return (
+    if (profileUser?.username !== username) return (
         <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
             <p className="text-white/30">User not found</p>
         </div>
     );
- 
-    const userPosts: Post[] = posts.filter(p => p.username === user.username);
+
+    const handleAccountDelete = async () => {
+        try {
+            await deleteAccount(currentUser);
+            navigate('/signup');
+            setIsDeleteOpen(false);
+        } catch(err){
+            console.error('Account Deletion failed', err);
+            setIsDeleteOpen(true);
+        }
+    }
+    // const userPosts: Post[] = posts.filter(p => p.username === user.username);
  
     return (
         <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
@@ -51,16 +67,21 @@ function Profile() {
                         <div className="relative">
                             <img
                                 className="w-20 h-20 rounded-2xl object-cover object-top ring-2 ring-purple-500/40"
-                                src={user.avatar}
-                                alt={user.username}
+                                src={profileUser?.photoURL}
+                                alt={profileUser?.username}
                             />
                             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-[#0a0a0f]" />
                         </div>
- 
-                        <motion.button
+
+                        {/* Account Delete button */}
+                        <button onClick={() => setIsDeleteOpen(true)} className="flex items-center gap-2 px-2 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 cursor-pointer bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50">
+                            <Trash2 />
+                        </button>
+
+                        {/* <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => toggleFollow(user.username)}
+                            onClick={() => toggleFollow(profileUser?.username)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 cursor-pointer ${
                                 user.isFollowing
                                     ? 'bg-white/5 border-white/10 text-white/50 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
@@ -71,13 +92,13 @@ function Profile() {
                                 ? <><UserCheck className="w-4 h-4" /> Following</>
                                 : <><UserPlus className="w-4 h-4" /> Follow</>
                             }
-                        </motion.button>
+                        </motion.button> */}
                     </div>
  
                     {/* Name + bio */}
                     <div className="mb-4">
-                        <h1 className="text-xl font-bold text-white mb-0.5">@{user.username}</h1>
-                        <p className="text-white/40 text-sm leading-relaxed">{user.bio}</p>
+                        <h1 className="text-xl font-bold text-white mb-0.5">@{profileUser?.username}</h1>
+                        <p className="text-white/40 text-sm leading-relaxed">{profileUser?.bio}</p>
                     </div>
  
                     {/* Stats */}
@@ -85,12 +106,12 @@ function Profile() {
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-purple-400" />
-                            <span className="text-white font-semibold">{user.followers.toLocaleString()}</span>
+                            <span className="text-white font-semibold">{profileUser?.followerCount?.toLocaleString()}</span>
                             <span className="text-white/30 text-sm">followers</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Grid className="w-4 h-4 text-pink-400" />
-                            <span className="text-white font-semibold">{userPosts.length}</span>
+                            {/* <span className="text-white font-semibold">{userPosts.length}</span> */}
                             <span className="text-white/30 text-sm">posts</span>
                         </div>
                     </div>
@@ -98,9 +119,13 @@ function Profile() {
                         <NewPost />
                     </div>
                 </motion.div>
- 
+
+                {/* Modal Place */}
+
+                <ConfirmModal isOpen={isDeleteOpen} title='Delete Account' message="You're going to delete your account. Are you sure?" confirmText='Yes, Delete it!' cancelText='No, Keep it.' onCancel={() => setIsDeleteOpen(false)} onConfirm={handleAccountDelete}/>
+
                 {/* Posts section */}
-                <motion.div
+                {/* <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
@@ -126,7 +151,7 @@ function Profile() {
                             ))}
                         </div>
                     )}
-                </motion.div>
+                </motion.div> */}
             </div>
         </div>
     );

@@ -30,6 +30,7 @@ function ChooseUsername() {
         <div className="absolute bottom-[-20%] right-[-10%] w-100 h-100 rounded-full bg-pink-600/20 blur-[120px] pointer-events-none" />
         <div className="absolute top-[40%] left-[50%] w-75 h-75 rounded-full bg-indigo-600/10 blur-[100px] pointer-events-none" />
 
+        <div className="flex-col">
         {/* Input Username */}
         <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -72,6 +73,7 @@ function ChooseUsername() {
                             Sign Up
                         </motion.button>
                     </motion.div>
+        </div>
     </div>
     </>)
 }

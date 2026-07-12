@@ -27,7 +27,7 @@ function Navbar() {
                     <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md shadow-purple-500/30">
                         <Heart className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-white font-bold text-lg tracking-tight">Social Media App</span>
+                    <span className="text-white font-bold text-lg tracking-tight">Social Media A</span>
                 </div>
  
                 {/* Nav links */}

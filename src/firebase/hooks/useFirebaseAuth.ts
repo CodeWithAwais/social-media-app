@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword, 
          signInWithEmailAndPassword, 
          onAuthStateChanged, 
@@ -8,8 +8,12 @@ import { createUserWithEmailAndPassword,
          signOut,
          updateProfile,
          type User ,
-         getAdditionalUserInfo} from 'firebase/auth'
+         getAdditionalUserInfo,
+         deleteUser,
+         reauthenticateWithPopup
+         } from 'firebase/auth'
 import useFirebaseFireStore from '../hooks/useFirebaseFireStore'
+import { doc, deleteDoc } from 'firebase/firestore'
 
 function useFirebaseAuth(){
     const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -68,7 +72,14 @@ function useFirebaseAuth(){
             throw error;
         }
     }
-    return { currentUser, isLoading, registerWithEmail, loginWithEmail, loginWithGoogle, logout };
+    const deleteAccount = async (user: User) => {
+        if(!user) return;
+        
+        await reauthenticateWithPopup(user, new GoogleAuthProvider());
+        await deleteDoc(doc(db, 'users', user.uid));
+        await deleteUser(user);
+    }
+    return { currentUser, isLoading, registerWithEmail, loginWithEmail, loginWithGoogle, logout, deleteAccount };
 }
 
 export default useFirebaseAuth;
