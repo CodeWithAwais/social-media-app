@@ -46,6 +46,7 @@ export interface AuthContextType {
     loginWithEmail: (email: string, password: string) => Promise<User>,
     loginWithGoogle: () => Promise<User>,
     logout: () => void,
+    deleteAccount: (user: User) => Promise<User>
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -71,3 +72,14 @@ export interface UserContextType {
 }
 
 export const UserContext = createContext<UserContextType | null>(null);
+
+
+export interface ConfirmModalProps{
+    isOpen: boolean,
+    title: string,
+    message: string,
+    confirmText?: string,
+    cancelText?: string,
+    onConfirm: () => void,
+    onCancel: () => void
+}
