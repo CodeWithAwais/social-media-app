@@ -1,59 +1,62 @@
-// Your job — build FeedContext that:
-// - holds posts: Post[] — start with 3 fake posts
-// - has addPost(form: NewPostForm) function
-//   → creates new post with random id, current user info
-// - has toggleLike(postId: string) function
-//   → flips isLiked, increments/decrements likes count
-// - has filterCategory: Category state
-// - has setFilterCategory function
 
-import { useEffect, useState, type ReactNode } from 'react';
-import { FeedContext, type Category, type Post, type NewPostForm } from '../types/index';
-import useAuth from '../hooks/useAuth'
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { FeedContext, type Post } from '../types/index';
+import type { QueryDocumentSnapshot } from 'firebase/firestore';
+import useFireStorePosts from '../firebase/hooks/useFireStorePosts';
+import useUser from '../hooks/useUser';
 
 function FeedProvider({children}: {children: ReactNode}){
-    const { user } = useAuth();
-    const [posts, setPosts] = useState<Post[]>(() => {
-        const savedPosts = localStorage.getItem('posts');
-        return savedPosts ? (JSON.parse(savedPosts) as Post[]) : []
-    });
-    const [filterCategory, setFilterCategory] = useState<Category>("all");  
-    function addPost(form: NewPostForm){
-        if(!user) return;
-        setPosts(prev => ([...prev, {
-            id: 'P-' + Math.random().toString(36).slice(2, 7),
-            userId: user.id,
-            username: user.username,
-            avatar: user.avatar,
-            caption: form.caption,
-            imageUrl: form.imageUrl,
-            likes: 0,
-            isLiked: false,
-            category: form.category,
-            createdAt: Date.now().toString()
-        }]))
+    const { profileUser } = useUser();
+    const {getFeedPage, createPost, userPosts} = useFireStorePosts();
+    const [feed, setFeed] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot | undefined>(undefined);
+    const isLoadingRef = useRef(false);    
+    const [hasMore, setHasMore] = useState(true);
+
+    const loadUserPosts = async () => {
+        if(!profileUser) return;
+        const userPostsData = await userPosts(profileUser);
+        setPosts(userPostsData);
     }
-    function removePosts(postId : string){
-        const newPosts = posts.filter(p => p.id !== postId)
-        setPosts(newPosts);
+    const loadNewestPosts = async () => {
+        const result = await getFeedPage();
+        setFeed(prev => {
+            const existingIds = new Set(prev.map(post => post.postId));
+            const newOnes = result.posts.filter(post => !existingIds.has(post.postId));
+            return [...newOnes, ...prev]
+        })
+        setLastVisible(result.lastVisible);
     }
+    const loadFeed = async () => {
+        if(isLoadingRef.current || !hasMore) return;
+        isLoadingRef.current = true;
+        try{
+            const result = await getFeedPage(lastVisible);
+            setFeed(prev => [...prev, ...result.posts]);
+            setLastVisible(result.lastVisible);
+            if(!result.lastVisible) setHasMore(false)
+        } finally{
+            isLoadingRef.current = false;
+        }
+    }
+    
     useEffect(() => {
-        localStorage.setItem('posts', JSON.stringify(posts))
-    }, [posts])
-    function toggleLike(postId: string){
-        setPosts(prev => prev.map(post => {
-            if(post.id !== postId)
-                return post;
-            const newIsLiked = !post.isLiked;
-            return{
-                ...post, isLiked: newIsLiked,
-                likes: newIsLiked ? post.likes + 1 : post.likes - 1 
-            }
-        }))
-    }
+    const handleScroll = () => {
+        const scrollPosition = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+
+            if (scrollPosition >= pageHeight - 300) {
+            loadFeed();
+        }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+}, [lastVisible]);
+
     return(<>
     <FeedContext.Provider value={
-        {posts, addPost, toggleLike, filterCategory, setFilterCategory, removePosts}
+        {feed, createPost, posts, loadUserPosts, loadNewestPosts}
     } >
         {children}
     </FeedContext.Provider>
