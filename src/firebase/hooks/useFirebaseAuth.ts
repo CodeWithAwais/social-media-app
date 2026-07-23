@@ -12,13 +12,13 @@ import { createUserWithEmailAndPassword,
          deleteUser,
          reauthenticateWithPopup
          } from 'firebase/auth'
-import useFirebaseFireStore from '../hooks/useFirebaseFireStore'
+import useFireStoreUser from './useFireStoreUser'
 import { doc, deleteDoc } from 'firebase/firestore'
 
 function useFirebaseAuth(){
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const { setUserData } = useFirebaseFireStore();
+    const { setUserData } = useFireStoreUser();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {

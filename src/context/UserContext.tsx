@@ -1,11 +1,11 @@
 import useAuth from '../hooks/useAuth'
 import { useState, useEffect, type ReactNode } from "react";
 import { UserContext, type UserProfile } from '../types/index'
-import useFirebaseFireStore from "../firebase/hooks/useFirebaseFireStore";
+import useFireStoreUser from "../firebase/hooks/useFireStoreUser";
 
 function UserProvider({children} : {children: ReactNode}){
     const { currentUser } = useAuth();
-    const { getUserData } = useFirebaseFireStore();
+    const { getUserData } = useFireStoreUser();
     const [profileUser, setProfileUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 

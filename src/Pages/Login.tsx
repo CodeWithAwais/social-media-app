@@ -7,10 +7,10 @@ import useAuth from '../hooks/useAuth';
 import { useNavigate} from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, ArrowRight, Sparkles } from 'lucide-react';
-import useFirebaseFireStore from '../firebase/hooks/useFirebaseFireStore';
+import useFireStoreUser from '../firebase/hooks/useFireStoreUser';
  
 function Login() {
-    const { getUserData } = useFirebaseFireStore();
+    const { getUserData } = useFireStoreUser();
     const navigate = useNavigate();
     const { loginWithEmail, loginWithGoogle } = useAuth();
     const [email, setEmail] = useState('');

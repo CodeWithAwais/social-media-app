@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 import { User, } from 'lucide-react';
 import { useState } from 'react';
 import useAuth from '../hooks/useAuth';
-import useFirebaseFireStore from '../firebase/hooks/useFirebaseFireStore';
+import useFireStoreUser from '../firebase/hooks/useFireStoreUser';
 import useUser from '../hooks/useUser';
 
 function ChooseUsername() {
     const {fetchProfileUser} = useUser();
-    const { updateUserData } = useFirebaseFireStore();
+    const { updateUserData } = useFireStoreUser();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [focused, setFocused] = useState(false);
