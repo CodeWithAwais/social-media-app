@@ -58,7 +58,9 @@ export interface FeedContextType {
     posts: Post[],
     createPost: (currentUser: UserProfile, form: NewPostForm) => Promise<void>,
     loadNewestPosts: () => Promise<void>,
+    loadFeed: () => Promise<void>,
     loadUserPosts: () => Promise<void>,
+    delPosts: (post: Post) => Promise<void>
 }
 
 export const FeedContext = createContext<FeedContextType | null>(null);
