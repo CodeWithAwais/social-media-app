@@ -1,17 +1,11 @@
-// Feed page:
-//   category filter buttons at top
-//   PostComposer to add new posts
-//   filtered post list using useFilter hook
-
-import useFilter from '../hooks/useFilter';
 import useFeed from '../hooks/useFeed';
 import type { Category } from '../types';
 import PostCard from '../components/PostCard';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
-import { useEffect } from 'react';
 import NewPost from '../components/NewPost';
+import { useEffect, useMemo } from 'react';
  
 const categories: { value: Category; emoji: string; label: string }[] = [
     { value: 'all', emoji: '⚡', label: 'All' },
@@ -24,18 +18,22 @@ const categories: { value: Category; emoji: string; label: string }[] = [
 function Feed() {
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { filteredPosts } = useFilter();
-    const { setFilterCategory } = useFeed();
+    const { feed, loadNewestPosts } = useFeed();
     const { from } = location.state || {};
     const filter = (searchParams.get('filter') ?? 'all') as Category;
- 
+
     useEffect(() => {
-        setFilterCategory(filter);
-    }, [filter, setFilterCategory]);
- 
+       loadNewestPosts();
+    }, [])
+
     const handleFilterPost = (cat: Category) => {
         setSearchParams({ filter: cat });
     };
+
+    const filteredPosts = useMemo(() => {
+        if(!filter || filter === 'all') return feed;
+        return feed.filter(post => post.category === filter);
+    }, [filter, feed])
  
     return (
         <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
@@ -64,7 +62,7 @@ function Feed() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-white">Your Feed</h1>
-                        <p className="text-white/30 text-sm">{filteredPosts.length} posts</p>
+                        <p className="text-white/30 text-sm">{feed.length} posts</p>
                     </div>
                     {/*  Button to create a new post, navigates to the create post page */}
                     <NewPost />
@@ -105,7 +103,7 @@ function Feed() {
                         ) : (
                             filteredPosts.map((post, i) => (
                                 <motion.div
-                                    key={post.id}
+                                    key={post.postId}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.05 }}
