@@ -7,22 +7,25 @@ import useAuth from '../hooks/useAuth';
 import useFeed from '../hooks/useFeed';
 import PostCard from '../components/PostCard';
 import { useParams, useNavigate} from 'react-router-dom';
-import type { Post } from '../types/index';
 import { motion } from 'framer-motion';
 import { Users, UserCheck, UserPlus, Grid, Trash2} from 'lucide-react';
 import NewPost from '../components/NewPost';
 import useUser from '../hooks/useUser';
 import ConfirmModal from '../components/ConfirmModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
  
 function Profile() {
-    // const { posts } = useFeed();
+    const {posts, loadUserPosts} = useFeed();
     const navigate = useNavigate();
     const { username } = useParams();
     const { currentUser, deleteAccount } = useAuth();
     const { profileUser } = useUser();
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
  
+    useEffect(() => {
+        loadUserPosts();
+    }, [])
+    
     if (!currentUser) return (
         <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
             <p className="text-white/30">Please log in</p>
@@ -35,6 +38,7 @@ function Profile() {
         </div>
     );
 
+
     const handleAccountDelete = async () => {
         try {
             await deleteAccount(currentUser);
@@ -45,7 +49,6 @@ function Profile() {
             setIsDeleteOpen(true);
         }
     }
-    // const userPosts: Post[] = posts.filter(p => p.username === user.username);
  
     return (
         <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
@@ -111,7 +114,7 @@ function Profile() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Grid className="w-4 h-4 text-pink-400" />
-                            {/* <span className="text-white font-semibold">{userPosts.length}</span> */}
+                            <span className="text-white font-semibold">{posts.length}</span>
                             <span className="text-white/30 text-sm">posts</span>
                         </div>
                     </div>
@@ -125,23 +128,23 @@ function Profile() {
                 <ConfirmModal isOpen={isDeleteOpen} title='Delete Account' message="You're going to delete your account. Are you sure?" confirmText='Yes, Delete it!' cancelText='No, Keep it.' onCancel={() => setIsDeleteOpen(false)} onConfirm={handleAccountDelete}/>
 
                 {/* Posts section */}
-                {/* <motion.div
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
                 >
                     <h2 className="text-white/50 text-xs font-medium uppercase tracking-widest mb-4">Posts</h2>
  
-                    {userPosts.length === 0 ? (
+                    {posts.length === 0 ? (
                         <div className="text-center py-16">
                             <p className="text-3xl mb-2">📭</p>
                             <p className="text-white/20 text-sm">No posts yet</p>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-4">
-                            {userPosts.map((post, i) => (
+                            {posts.map((post, i) => (
                                 <motion.div
-                                    key={post.id}
+                                    key={i}
                                     initial={{ opacity: 0, y: 16 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 + i * 0.05 }}
@@ -151,7 +154,7 @@ function Profile() {
                             ))}
                         </div>
                     )}
-                </motion.div> */}
+                </motion.div>
             </div>
         </div>
     );
