@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useFeed from '../hooks/useFeed';
+import useUser from '../hooks/useUser';
 import type { NewPostForm, Category } from '../types/index';
 import { motion } from 'framer-motion';
 import { ImageIcon, Tag, Send, ArrowLeft } from 'lucide-react';
@@ -13,7 +14,8 @@ const categories: { value: Exclude<Category, 'all'>; emoji: string }[] = [
 ];
  
 function PostComposer() {
-    const { addPost } = useFeed();
+    const { profileUser } = useUser();
+    const { createPost } = useFeed();
     const navigate = useNavigate();
     const [form, setForm] = useState<NewPostForm>({
         caption: '',
@@ -21,10 +23,10 @@ function PostComposer() {
         category: 'tech',
     });
  
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!form.caption || !form.imageUrl) return;
-        addPost(form);
+        if (!form.caption || !form.imageUrl || !profileUser) return;
+        await createPost(profileUser, form);
         setForm({ caption: '', imageUrl: '', category: 'tech' });
         navigate('/feed');
     };
