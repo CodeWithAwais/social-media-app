@@ -1,31 +1,31 @@
 import { createContext } from 'react'
 import { type User } from 'firebase/auth'
-
+import type { Timestamp } from 'firebase/firestore';
 // AppUser — uid, displayName, avatar, bio, followers, isFollowing
 
 export interface UserProfile {
+    userId: string
     username: string,
     displayName: string,
     email: string,
     photoURL: string,
     bio: string,
     followerCount: number,
-    createdAt: string
+    createdAt: Timestamp,
 }
 
 // Post — id, userId, username, caption, imageUrl,
 //         likes, isLiked, category, createdAt
 export interface Post{
-    id: string,
+    postId: string,
     userId: string,
     username: string,
     avatar: string,
     imageUrl: string,
     caption: string,
-    isLiked: boolean,
     likes: number,
     category: Category,
-    createdAt: string
+    createdAt: Timestamp,
 }
 
 // Category — union type: "all" | "tech" | "lifestyle" | "travel" | "food"
@@ -46,7 +46,7 @@ export interface AuthContextType {
     loginWithEmail: (email: string, password: string) => Promise<User>,
     loginWithGoogle: () => Promise<User>,
     logout: () => void,
-    deleteAccount: (user: User) => Promise<User>
+    deleteAccount: (user: User) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -54,12 +54,11 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 // FeedContextType — posts, addPost, toggleLike, filterCategory,
 //                   setFilterCategory
 export interface FeedContextType {
+    feed: Post[],
     posts: Post[],
-    addPost: (form: NewPostForm) => void,
-    toggleLike: (postId: string) => void,
-    filterCategory: Category,
-    setFilterCategory: (category: Category) => void,
-    removePosts: (postId: string) => void
+    createPost: (currentUser: UserProfile, form: NewPostForm) => Promise<void>,
+    loadNewestPosts: () => Promise<void>,
+    loadUserPosts: () => Promise<void>,
 }
 
 export const FeedContext = createContext<FeedContextType | null>(null);
