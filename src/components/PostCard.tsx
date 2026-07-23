@@ -2,11 +2,9 @@
 //   avatar, username, caption, image, like button with count
 //   category tag, liked/unliked state
 
-import useFeed from '../hooks/useFeed';
 import { type Post } from '../types/index';
 import { Heart, Tag, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import useAuth from '../hooks/useAuth';
  
 interface PostCardProps {
     post: Post;
@@ -21,8 +19,6 @@ const categoryColors: Record<string, string> = {
 };
  
 function PostCard({ post }: PostCardProps) {
-    const { user } = useAuth();
-    const { toggleLike, removePosts } = useFeed();
  
     return (
         <motion.div
@@ -45,9 +41,7 @@ function PostCard({ post }: PostCardProps) {
                     <div>
                         <p className="text-white text-sm font-semibold leading-none">@{post.username}</p>
                         <p className="text-white/30 text-xs mt-0.5">
-                            {new Date(Number(post.createdAt)).toLocaleDateString('en-US', {
-                                month: 'short', day: 'numeric'
-                            })}
+                            {post.createdAt.toDate().toLocaleDateString()}
                         </p>
                     </div>
                 </div>
@@ -58,12 +52,12 @@ function PostCard({ post }: PostCardProps) {
                     <Tag className="w-3 h-3" />
                     {post.category}
                     </span>
-                    {post.username === user?.username && (<button 
-                        onClick={() => removePosts(post.id)}
+                    <button 
+                        // onClick={() => removePosts(post.id)}
                         className="text-white/30 hover:text-red-400 transition-colors duration-200 cursor-pointer"
                     >
                         <Trash2 className="w-4 h-4" />
-                    </button>)}
+                    </button>
                 </div>
                 
             </div>
@@ -85,24 +79,24 @@ function PostCard({ post }: PostCardProps) {
                 <div className="flex items-center gap-2">
                     <motion.button
                         whileTap={{ scale: 0.8 }}
-                        onClick={() => toggleLike(post.id)}
+                        // onClick={() => toggleLike(post.id)}
                         className="flex items-center gap-1.5 cursor-pointer group"
                     >
                         <AnimatePresence mode="wait">
                             <motion.div
-                                key={post.isLiked ? 'liked' : 'unliked'}
+                                // key={post.isLiked ? 'liked' : 'unliked'}
                                 initial={{ scale: 0.5 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                             >
                                 <Heart
                                     className="w-5 h-5 transition-colors duration-200"
-                                    fill={post.isLiked ? '#ec4899' : 'none'}
-                                    stroke={post.isLiked ? '#ec4899' : 'rgb(255 255 255 / 0.3)'}
+                                    // fill={post.isLiked ? '#ec4899' : 'none'}
+                                    // stroke={post.isLiked ? '#ec4899' : 'rgb(255 255 255 / 0.3)'}
                                 />
                             </motion.div>
                         </AnimatePresence>
-                        <span className={`text-sm font-medium transition-colors duration-200 ${post.isLiked ? 'text-pink-400' : 'text-white/30 group-hover:text-white/50'}`}>
+                        <span className={`text-sm font-medium transition-colors duration-200 `}>
                             {post.likes}
                         </span>
                     </motion.button>
