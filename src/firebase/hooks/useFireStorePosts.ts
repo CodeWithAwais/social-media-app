@@ -1,5 +1,5 @@
 import {db} from '../firebase';
-import {getDocs, addDoc, serverTimestamp, query, QueryDocumentSnapshot, collection, orderBy, startAfter, where} from 'firebase/firestore';
+import {getDocs, addDoc, doc, serverTimestamp, query, QueryDocumentSnapshot, collection, orderBy, startAfter, where, deleteDoc} from 'firebase/firestore';
 import type { NewPostForm, Post, UserProfile } from '../../types';
 
 function useFireStorePosts(){
@@ -15,8 +15,9 @@ function useFireStorePosts(){
             createdAt: serverTimestamp(),
         })
     }
-    const deletePosts = async () => {
-        
+    const deletePost = async (post: Post) => {
+        if(!post) return;
+        await deleteDoc(doc(db, 'posts', post.postId));
     }
     const getFeedPage = async (lastVisibleDoc?: QueryDocumentSnapshot) => {
         const baseQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
@@ -36,11 +37,11 @@ function useFireStorePosts(){
         const q  = query(collection(db, 'posts'), where('userId', '==', currentUser.userId), orderBy('createdAt', 'desc'));
         const postsSnap = await getDocs(q);
         const posts = postsSnap.docs.map(doc => (
-            {...doc.data() as Post}
+            {...doc.data() as Post, postId: doc.id}
         ))
         return posts;
     }
-    return { createPost, getFeedPage, userPosts };
+    return { createPost, getFeedPage, userPosts, deletePost };
 }
 
 export default useFireStorePosts;
