@@ -7,7 +7,7 @@ import useUser from '../hooks/useUser';
 
 function FeedProvider({children}: {children: ReactNode}){
     const { profileUser } = useUser();
-    const {getFeedPage, createPost, userPosts} = useFireStorePosts();
+    const {getFeedPage, createPost, userPosts, deletePost} = useFireStorePosts();
     const [feed, setFeed] = useState<Post[]>([]);
     const [posts, setPosts] = useState<Post[]>([]);
     const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot | undefined>(undefined);
@@ -18,6 +18,11 @@ function FeedProvider({children}: {children: ReactNode}){
         if(!profileUser) return;
         const userPostsData = await userPosts(profileUser);
         setPosts(userPostsData);
+    }
+    const delPosts = async (post: Post) => {
+        await deletePost(post);
+        setFeed(prev => prev.filter(p => p.postId !== post.postId));
+        setPosts(prev => prev.filter(p => p.postId !== post.postId));
     }
     const loadNewestPosts = async () => {
         const result = await getFeedPage();
@@ -52,11 +57,12 @@ function FeedProvider({children}: {children: ReactNode}){
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [lastVisible]);
 
     return(<>
     <FeedContext.Provider value={
-        {feed, createPost, posts, loadUserPosts, loadNewestPosts}
+        {feed, createPost, posts, loadUserPosts, loadNewestPosts, loadFeed, delPosts,}
     } >
         {children}
     </FeedContext.Provider>
