@@ -21,9 +21,11 @@ function Profile() {
     const { currentUser, deleteAccount } = useAuth();
     const { profileUser } = useUser();
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+    const [fromProfile, setFromProfile] = useState<boolean>(true);
  
     useEffect(() => {
         loadUserPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     
     if (!currentUser) return (
@@ -149,7 +151,7 @@ function Profile() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 + i * 0.05 }}
                                 >
-                                    <PostCard post={post} />
+                                    <PostCard post={post} fromProfile={fromProfile} />
                                 </motion.div>
                             ))}
                         </div>

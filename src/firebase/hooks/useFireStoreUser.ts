@@ -31,7 +31,6 @@ function useFirebaseFireStore(){
         if(!user) return;
         await updateDoc(doc(db, 'users', user.uid), updates)
     }
-
     
     return { setUserData, getUserData, updateUserData };
 }

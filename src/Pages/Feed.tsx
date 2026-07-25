@@ -18,12 +18,13 @@ const categories: { value: Category; emoji: string; label: string }[] = [
 function Feed() {
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { feed, loadNewestPosts } = useFeed();
+    const { feed, loadNewestPosts} = useFeed();
     const { from } = location.state || {};
     const filter = (searchParams.get('filter') ?? 'all') as Category;
 
     useEffect(() => {
        loadNewestPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleFilterPost = (cat: Category) => {
