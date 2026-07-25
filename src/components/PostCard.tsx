@@ -5,9 +5,13 @@
 import { type Post } from '../types/index';
 import { Heart, Tag, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useFeed from '../hooks/useFeed';
+import { useState } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
  
 interface PostCardProps {
     post: Post;
+    fromProfile?: boolean;
 }
  
 const categoryColors: Record<string, string> = {
@@ -18,9 +22,20 @@ const categoryColors: Record<string, string> = {
     all: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
 };
  
-function PostCard({ post }: PostCardProps) {
- 
-    return (
+function PostCard({ post, fromProfile }: PostCardProps) {
+    const {delPosts} = useFeed();
+    const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+
+    const handlePostDelete = async () => {
+         try {
+            await delPosts(post);
+            setIsDeleteOpen(false);
+        } catch(err){
+            console.error('Account Deletion failed', err);
+            setIsDeleteOpen(true);
+        }
+    }
+    return (<>
         <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -52,12 +67,15 @@ function PostCard({ post }: PostCardProps) {
                     <Tag className="w-3 h-3" />
                     {post.category}
                     </span>
-                    <button 
-                        // onClick={() => removePosts(post.id)}
-                        className="text-white/30 hover:text-red-400 transition-colors duration-200 cursor-pointer"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {/* Post Delete Button */}
+                    {fromProfile && (
+                        <button 
+                            onClick={() => setIsDeleteOpen(true)}
+                            className="text-white/30 hover:text-red-400 transition-colors duration-200 cursor-pointer"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
                 
             </div>
@@ -74,7 +92,7 @@ function PostCard({ post }: PostCardProps) {
  
             {/* Footer */}
             <div className="px-4 py-3">
-                <p className="text-white/80 text-sm mb-3 leading-relaxed">{post.caption}</p>
+                <p className="text-white/80 text-sm mb-3 leading-relaxed"><b>{post.username}</b> {post.caption}</p>
  
                 <div className="flex items-center gap-2">
                     <motion.button
@@ -102,8 +120,12 @@ function PostCard({ post }: PostCardProps) {
                     </motion.button>
                 </div>
             </div>
+    
         </motion.div>
-    );
+
+        {/* Modal Place */}
+        <ConfirmModal isOpen={isDeleteOpen} title='Delete Account' message="You're going to delete this post. Are you sure?" confirmText='Yes, Delete it!' cancelText='No, Keep it.' onCancel={() => setIsDeleteOpen(false)} onConfirm={handlePostDelete}/>
+    </>);
 }
  
 export default PostCard;
