@@ -6,8 +6,10 @@ import { type Post } from '../types/index';
 import { Heart, Tag, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useFeed from '../hooks/useFeed';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
  
 interface PostCardProps {
     post: Post;
@@ -23,11 +25,32 @@ const categoryColors: Record<string, string> = {
 };
  
 function PostCard({ post, fromProfile }: PostCardProps) {
-    const {delPosts} = useFeed();
+    const {delPosts, handleToggleLike} = useFeed();
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+    const [isLiked, setIsLiked] = useState<boolean>(false);
 
+    console.log('PostCard rendered for postId:', post.postId, 'isLiked:', isLiked, 'likes:', post.likes);
+    
+    useEffect(() => {
+        const checkIfLiked = async () => {
+            const likeSnap = await getDoc(doc(db, 'likes', `${post.postId}_${post.userId}`));
+            setIsLiked(likeSnap.exists());
+        } 
+        checkIfLiked();
+    }, [post.postId, post.userId, post.likes]);
+
+    const handleLikes = async () => {
+        const wasLiked = isLiked;
+        setIsLiked(!wasLiked);
+        try {
+            await handleToggleLike(post.postId, post.userId, wasLiked);
+        } catch (err) {
+            console.error('Error toggling like:', err);
+            setIsLiked(wasLiked);
+        }
+    }
     const handlePostDelete = async () => {
-         try {
+            try {
             await delPosts(post);
             setIsDeleteOpen(false);
         } catch(err){
@@ -93,28 +116,29 @@ function PostCard({ post, fromProfile }: PostCardProps) {
             {/* Footer */}
             <div className="px-4 py-3">
                 <p className="text-white/80 text-sm mb-3 leading-relaxed"><b>{post.username}</b> {post.caption}</p>
- 
+
+            {/* Like Posts */}
                 <div className="flex items-center gap-2">
                     <motion.button
                         whileTap={{ scale: 0.8 }}
-                        // onClick={() => toggleLike(post.id)}
+                        onClick={handleLikes}
                         className="flex items-center gap-1.5 cursor-pointer group"
                     >
                         <AnimatePresence mode="wait">
                             <motion.div
-                                // key={post.isLiked ? 'liked' : 'unliked'}
+                                key={isLiked ? 'liked' : 'unliked'}
                                 initial={{ scale: 0.5 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                             >
                                 <Heart
                                     className="w-5 h-5 transition-colors duration-200"
-                                    // fill={post.isLiked ? '#ec4899' : 'none'}
-                                    // stroke={post.isLiked ? '#ec4899' : 'rgb(255 255 255 / 0.3)'}
+                                    fill={isLiked ? '#ec4899' : 'none'}
+                                    stroke={isLiked ? '#ec4899' : 'rgb(255 255 255 / 0.3)'}
                                 />
                             </motion.div>
                         </AnimatePresence>
-                        <span className={`text-sm font-medium transition-colors duration-200 `}>
+                        <span className={`text-sm text-white font-medium transition-colors duration-200 `}>
                             {post.likes}
                         </span>
                     </motion.button>
