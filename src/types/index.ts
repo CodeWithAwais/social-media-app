@@ -28,6 +28,13 @@ export interface Post{
     createdAt: Timestamp,
 }
 
+export interface Like{
+    postId: string,
+    likedByUser: string,
+    isLiked: boolean,
+    createdAt: Timestamp
+}
+
 // Category — union type: "all" | "tech" | "lifestyle" | "travel" | "food"
 export type Category = "all" | "tech" | "lifestyle" | "travel" | "food";
 
@@ -60,7 +67,8 @@ export interface FeedContextType {
     loadNewestPosts: () => Promise<void>,
     loadFeed: () => Promise<void>,
     loadUserPosts: () => Promise<void>,
-    delPosts: (post: Post) => Promise<void>
+    delPosts: (post: Post) => Promise<void>,
+    handleToggleLike: (postId: string, userId: string, wasLiked: boolean) => Promise<void>
 }
 
 export const FeedContext = createContext<FeedContextType | null>(null);

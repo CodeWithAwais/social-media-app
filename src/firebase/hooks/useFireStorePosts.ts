@@ -1,6 +1,6 @@
 import {db} from '../firebase';
 import {getDocs, addDoc, doc, serverTimestamp, query, QueryDocumentSnapshot, collection, orderBy, startAfter, where, deleteDoc} from 'firebase/firestore';
-import type { NewPostForm, Post, UserProfile } from '../../types';
+import type { NewPostForm, Post, UserProfile} from '../../types';
 
 function useFireStorePosts(){
     const createPost = async (currentUser: UserProfile, form: NewPostForm) => {
@@ -41,6 +41,7 @@ function useFireStorePosts(){
         ))
         return posts;
     }
+
     return { createPost, getFeedPage, userPosts, deletePost };
 }
 
