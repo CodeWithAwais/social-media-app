@@ -1,13 +1,14 @@
-
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { FeedContext, type Post } from '../types/index';
-import type { QueryDocumentSnapshot } from 'firebase/firestore';
+import { FeedContext, type Post} from '../types/index';
+import { type QueryDocumentSnapshot} from 'firebase/firestore';
 import useFireStorePosts from '../firebase/hooks/useFireStorePosts';
 import useUser from '../hooks/useUser';
+import useFireStoreLike from '../firebase/hooks/useFireStoreLike';
 
 function FeedProvider({children}: {children: ReactNode}){
     const { profileUser } = useUser();
     const {getFeedPage, createPost, userPosts, deletePost} = useFireStorePosts();
+    const {toggleLike} = useFireStoreLike();
     const [feed, setFeed] = useState<Post[]>([]);
     const [posts, setPosts] = useState<Post[]>([]);
     const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot | undefined>(undefined);
@@ -60,9 +61,23 @@ function FeedProvider({children}: {children: ReactNode}){
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [lastVisible]);
 
+    const handleToggleLike = async (postId: string, userId: string, wasLiked: boolean) => {
+            await toggleLike(postId, userId);
+            setFeed(prev => prev.map(post => 
+                post.postId === postId ? {
+                    ...post, likes : (post.likes ?? 0) + (wasLiked ? -1 : 1)
+                } : post
+            ));
+            setPosts(prev => prev.map(post => 
+                post.postId === postId ? {
+                    ...post, likes : (post.likes ?? 0) + (wasLiked ? -1 : 1)
+                } : post
+            ));
+    }
+
     return(<>
     <FeedContext.Provider value={
-        {feed, createPost, posts, loadUserPosts, loadNewestPosts, loadFeed, delPosts,}
+        {feed, createPost, posts, loadUserPosts, loadNewestPosts, loadFeed, delPosts, handleToggleLike}
     } >
         {children}
     </FeedContext.Provider>
