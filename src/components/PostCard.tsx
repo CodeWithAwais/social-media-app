@@ -6,6 +6,7 @@ import { type Post } from '../types/index';
 import { Heart, Tag, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useFeed from '../hooks/useFeed';
+import useUser from '../hooks/useUser';
 import { useEffect, useState } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { doc, getDoc } from 'firebase/firestore';
@@ -26,6 +27,7 @@ const categoryColors: Record<string, string> = {
  
 function PostCard({ post, fromProfile }: PostCardProps) {
     const {delPosts, handleToggleLike} = useFeed();
+    const { profileUser } = useUser();
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState<boolean>(false);
 
@@ -33,17 +35,18 @@ function PostCard({ post, fromProfile }: PostCardProps) {
     
     useEffect(() => {
         const checkIfLiked = async () => {
-            const likeSnap = await getDoc(doc(db, 'likes', `${post.postId}_${post.userId}`));
+            const likeSnap = await getDoc(doc(db, 'likes', `${post.postId}_${profileUser?.userId}`));
             setIsLiked(likeSnap.exists());
         } 
         checkIfLiked();
-    }, [post.postId, post.userId, post.likes]);
+    }, [post.postId, profileUser?.userId, post.likes]);
 
     const handleLikes = async () => {
+        if (!profileUser) return;
         const wasLiked = isLiked;
         setIsLiked(!wasLiked);
         try {
-            await handleToggleLike(post.postId, post.userId, wasLiked);
+            await handleToggleLike(post.postId, profileUser.userId, wasLiked);
         } catch (err) {
             console.error('Error toggling like:', err);
             setIsLiked(wasLiked);

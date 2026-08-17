@@ -21,7 +21,6 @@ function useFireStoreLike () {
             }
         })
     }
-    
 
     return {toggleLike}
 }
