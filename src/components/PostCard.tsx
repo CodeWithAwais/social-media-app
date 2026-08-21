@@ -31,7 +31,7 @@ function PostCard({ post, fromProfile }: PostCardProps) {
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
     const [isLiked, setIsLiked] = useState<boolean>(false);
 
-    console.log('PostCard rendered for postId:', post.postId, 'isLiked:', isLiked, 'likes:', post.likes);
+    // console.log('PostCard rendered for postId:', post.postId, 'isLiked:', isLiked, 'likes:', post.likes);
     
     useEffect(() => {
         const checkIfLiked = async () => {
@@ -110,9 +110,9 @@ function PostCard({ post, fromProfile }: PostCardProps) {
             <div className="relative overflow-hidden">
                 <img
                     className="w-full aspect-square object-cover"
-                    src={post.imageUrl}
+                    src={post.postUrl}
                     alt={post.caption}
-                />
+                    />
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
             </div>
  

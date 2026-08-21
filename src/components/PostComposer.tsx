@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import useFeed from '../hooks/useFeed';
 import useUser from '../hooks/useUser';
 import type { NewPostForm, Category } from '../types/index';
 import { motion } from 'framer-motion';
-import { ImageIcon, Tag, Send, ArrowLeft } from 'lucide-react';
+import { Tag, Send, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
  
 const categories: { value: Exclude<Category, 'all'>; emoji: string }[] = [
@@ -17,19 +17,25 @@ function PostComposer() {
     const { profileUser } = useUser();
     const { createPost } = useFeed();
     const navigate = useNavigate();
+    const inputFileRef = useRef<HTMLInputElement>(null);
     const [form, setForm] = useState<NewPostForm>({
         caption: '',
-        imageUrl: '',
+        postUrl: '',
+        file: null,
         category: 'tech',
     });
  
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!form.caption || !form.imageUrl || !profileUser) return;
+        if (!form.caption || !form.file || !profileUser ) return;
         await createPost(profileUser, form);
-        setForm({ caption: '', imageUrl: '', category: 'tech' });
+        setForm({ caption: '', postUrl: '', file: null, category: 'tech' });
         navigate('/feed');
     };
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) setForm({ ...form, file, postUrl: URL.createObjectURL(file)});
+    }
  
     return (
         <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
@@ -73,13 +79,15 @@ function PostComposer() {
  
                         {/* Image URL */}
                         <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus-within:border-purple-500/50 transition-all duration-300">
-                            <ImageIcon className="w-4 h-4 text-white/30 shrink-0" />
+                            <input type="file" ref={inputFileRef} name="file" id="file" accept="image/* video/*" onChange={handleOnChange} className="hidden" />
+                            <button type="submit" className="w-20 flex items-center justify-between gap-2 text-white/20 hover:text-white/40 cursor-pointer" onClick={() => inputFileRef.current?.click()} ><Send className="w-5 h-5 white" />Browse</button>
+                            <span className="text-white/20">|</span>
                             <input
                                 type="url"
                                 className="bg-transparent text-white placeholder-white/20 flex-1 outline-none text-sm"
                                 placeholder="Paste an image URL..."
-                                value={form.imageUrl}
-                                onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+                                value={form.postUrl}
+                                onChange={e => setForm({ ...form, postUrl: e.target.value })}
                             />
                         </div>
  
@@ -114,7 +122,7 @@ function PostComposer() {
                             type="submit"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            disabled={!form.caption || !form.imageUrl}
+                            disabled={!form.caption || !form.postUrl}
                             className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-purple-500/20 cursor-pointer mt-2"
                         >
                             <Send className="w-4 h-4" />

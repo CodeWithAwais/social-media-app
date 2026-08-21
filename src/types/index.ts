@@ -21,7 +21,7 @@ export interface Post{
     userId: string,
     username: string,
     avatar: string,
-    imageUrl: string,
+    postUrl: string,
     caption: string,
     likes: number,
     category: Category,
@@ -38,10 +38,11 @@ export interface Like{
 // Category — union type: "all" | "tech" | "lifestyle" | "travel" | "food"
 export type Category = "all" | "tech" | "lifestyle" | "travel" | "food";
 
-// NewPostForm — caption, imageUrl, category (no id, userId, likes etc)
+// NewPostForm — caption, postUrl, category (no id, userId, likes etc)
 export interface NewPostForm {
     caption: string,
-    imageUrl: string,
+    postUrl: string,
+    file: File | null,
     category: Category
 }
 
